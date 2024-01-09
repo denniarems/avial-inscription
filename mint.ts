@@ -35,55 +35,67 @@ async function transferWithTimeout() {
     alice.address,
   );
   console.log(`Available balance of ${alice.address}: ${freeBalance}`);
-  const remarkTx = api.tx.system.remarkWithEvent(JSON.stringify(payload));
-  console.log("🚀 ~ transferWithTimeout ~ remarkTx:", remarkTx.toHuman(true));
-  await remarkTx.signAndSend(alice, async ({ status, events, txHash }) => {
-    if (status.isInvalid) {
-      console.log("Transaction invalid");
-    } else if (status.isReady) {
-      console.log(`${count} Transaction is ready`);
-    } else if (status.isBroadcast) {
-      console.log(`${count} Transaction has been broadcasted`);
-    } else if (status.isInBlock) {
-      console.log(`${count} Transaction is in block`);
-      console.log(
-        `Extrinsic hash: ${txHash} is in block ${status.asInBlock.toHex()}`,
-      );
-      for (const { event: { data, method, section }, phase } of events) {
-        if (method === "ExtrinsicSuccess") {
-          console.log(`${count} Transaction Success`);
-          console.log(
-            `${count} Transaction has been included in blockHash ${txHash}`,
-          );
-          console.log(
-            `https://goldberg.avail.tools/#/explorer/query/${status.asInBlock.toHex()}`,
-          );
-        } else if (method === "ExtrinsicFailed") {
-          console.log("Transaction failed");
-          const dispatchError = data?.dispatchError;
 
-          if (dispatchError?.isModule) {
-            const errorModule = data?.dispatchError?.asModule;
-            const { method, section, docs } = api.registry.findMetaError(
-              errorModule,
+  const txs = [];
+  for (let i = 0; i < 99; i++) {
+    txs.push(api.tx.system.remarkWithEvent(JSON.stringify(payload)));
+  }
+  const remarkTx = api.tx.utility.batchAll(txs);
+  const nounce = await api.rpc.system.accountNextIndex(alice.address);
+  console.log("🚀 ~ Wallet ~ nounce:", nounce.toNumber());
+  const unsub = await remarkTx.signAndSend(
+    alice,
+    async ({ status, events, txHash }) => {
+      if (status.isInvalid) {
+        console.log("Transaction invalid");
+      } else if (status.isReady) {
+        console.log(`${count} Transaction is ready`);
+      } else if (status.isBroadcast) {
+        console.log(`${count} Transaction has been broadcasted`);
+      } else if (status.isInBlock) {
+        console.log(`${count} Transaction is in block`);
+        console.log(
+          `Extrinsic hash: ${txHash} is in block ${status.asInBlock.toHex()}`,
+        );
+        for (const { event: { data, method, section }, phase } of events) {
+          if (method === "ExtrinsicSuccess") {
+            console.log(`${count} Transaction Success`);
+            console.log(
+              `${count} Transaction has been included in blockHash ${txHash}`,
             );
-          } else if (dispatchError?.isToken) {
-            console.log(`${dispatchError.type}.${dispatchError.asToken.type}`);
+            console.log(
+              `https://goldberg.avail.tools/#/explorer/query/${status.asInBlock.toHex()}`,
+            );
+          } else if (method === "ExtrinsicFailed") {
+            console.log("Transaction failed");
+            const dispatchError = data?.dispatchError;
+
+            if (dispatchError?.isModule) {
+              const errorModule = data?.dispatchError?.asModule;
+              const { method, section, docs } = api.registry.findMetaError(
+                errorModule,
+              );
+            } else if (dispatchError?.isToken) {
+              console.log(
+                `${dispatchError.type}.${dispatchError.asToken.type}`,
+              );
+            }
           }
         }
+      } else if (status.isFinalized) {
+        console.log(
+          `${count} Transaction has been included in blockHash ${status.asFinalized.toHex()}`,
+        );
+        console.log(
+          `https://goldberg.avail.tools/#/explorer/query/${status.asFinalized.toHex()}`,
+        );
+        console.log(
+          `Finalized block hash ${status.asFinalized} and tx hash ${txHash}`,
+        );
+        unsub();
       }
-    } else if (status.isFinalized) {
-      console.log(
-        `${count} Transaction has been included in blockHash ${status.asFinalized.toHex()}`,
-      );
-      console.log(
-        `https://goldberg.avail.tools/#/explorer/query/${status.asFinalized.toHex()}`,
-      );
-      console.log(
-        `Finalized block hash ${status.asFinalized} and tx hash ${txHash}`,
-      );
-    }
-  }).catch((error) => {
+    },
+  ).catch((error) => {
     console.log(":( transaction failed");
     console.error("ERROR:", error);
   });
