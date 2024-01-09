@@ -6,3 +6,5 @@ services:
       - .:/app
     working_dir: /app
     command: deno run --allow-net --allow-read --unstable mint.ts
+    environment:
+      - KEY=${KEY}
