@@ -46,6 +46,9 @@ async function transferWithTimeout() {
       console.log(`${count} Transaction has been broadcasted`);
     } else if (status.isInBlock) {
       console.log(`${count} Transaction is in block`);
+      console.log(
+        `Extrinsic hash: ${txHash} is in block ${status.asInBlock.toHex()}`,
+      );
       for (const { event: { data, method, section }, phase } of events) {
         if (method === "ExtrinsicSuccess") {
           console.log(`${count} Transaction Success`);
