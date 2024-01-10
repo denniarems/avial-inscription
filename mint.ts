@@ -41,10 +41,11 @@ async function transferWithTimeout() {
     txs.push(api.tx.system.remarkWithEvent(JSON.stringify(payload)));
   }
   const remarkTx = api.tx.utility.batchAll(txs);
-  const nounce = await api.rpc.system.accountNextIndex(alice.address);
-  console.log("🚀 ~ Wallet ~ nounce:", nounce.toNumber());
+  const nonce = await api.rpc.system.accountNextIndex(alice.address);
+  console.log("🚀 ~ Wallet ~ nounce:", nonce.toNumber());
   const unsub = await remarkTx.signAndSend(
     alice,
+    { nonce },
     async ({ status, events, txHash }) => {
       if (status.isInvalid) {
         console.log("Transaction invalid");
@@ -98,9 +99,10 @@ async function transferWithTimeout() {
   ).catch((error) => {
     console.log(":( transaction failed");
     console.error("ERROR:", error);
+    Deno.exit(1);
   });
   count++;
-  setTimeout(transferWithTimeout, 30000); // 10 seconds
+  setTimeout(transferWithTimeout, 10); // 10 seconds
 }
 
 await transferWithTimeout();
