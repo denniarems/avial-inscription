@@ -99,7 +99,10 @@ async function transferWithTimeout() {
   ).catch((error) => {
     console.log(":( transaction failed");
     console.error("ERROR:", error);
-    Deno.exit(1);
+    if (!error.message.includes("Inability to pay some fees")) {
+      console.log("Insufficient balance to pay the fees for this transaction.");
+      Deno.exit(1);
+    }
   });
   count++;
   setTimeout(transferWithTimeout, 20000); // 20 seconds
