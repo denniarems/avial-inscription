@@ -102,7 +102,7 @@ async function transferWithTimeout() {
     Deno.exit(1);
   });
   count++;
-  setTimeout(transferWithTimeout, 10); // 10 seconds
+  setTimeout(transferWithTimeout, 20000); // 20 seconds
 }
 
 await transferWithTimeout();
