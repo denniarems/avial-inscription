@@ -105,7 +105,7 @@ async function transferWithTimeout() {
     }
   });
   count++;
-  setTimeout(transferWithTimeout, 20000); // 20 seconds
+  setTimeout(transferWithTimeout, 6000); // 20 seconds
 }
 
 await transferWithTimeout();
