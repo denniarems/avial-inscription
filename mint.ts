@@ -108,4 +108,8 @@ async function transferWithTimeout() {
   setTimeout(transferWithTimeout, 6000); // 20 seconds
 }
 
-await transferWithTimeout();
+try {
+  await transferWithTimeout();
+} catch (e) {
+  console.log("🚀 ~ e:", e);
+}
