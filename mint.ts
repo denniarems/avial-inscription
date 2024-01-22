@@ -37,10 +37,10 @@ async function transferWithTimeout() {
   console.log(`Available balance of ${alice.address}: ${freeBalance}`);
 
   const txs = [];
-  for (let i = 0; i < 99; i++) {
+  for (let i = 0; i < 1; i++) {
     txs.push(api.tx.system.remarkWithEvent(JSON.stringify(payload)));
   }
-  const remarkTx = api.tx.utility.batchAll(txs);
+  const remarkTx = api.tx.system.remarkWithEvent(JSON.stringify(payload));
   const nonce = await api.rpc.system.accountNextIndex(alice.address);
   console.log("🚀 ~ Wallet ~ nounce:", nonce.toNumber());
   const unsub = await remarkTx.signAndSend(
@@ -105,7 +105,7 @@ async function transferWithTimeout() {
     }
   });
   count++;
-  setTimeout(transferWithTimeout, 6000); // 20 seconds
+  // setTimeout(transferWithTimeout, 1000); // 20 seconds
 }
 
 try {
