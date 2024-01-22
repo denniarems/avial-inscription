@@ -2,6 +2,7 @@ import {
   createPublicClient,
   createWalletClient,
   http,
+  parseEther,
 } from "https://esm.sh/viem@2.4.1";
 import { mnemonicToAccount } from "https://esm.sh/viem@2.4.1/accounts";
 import { blastSepolia } from "https://esm.sh/viem@2.4.1/chains";
@@ -10,7 +11,7 @@ const env = await load();
 const key = env["KEY"];
 export const wagmiAbi = [
   {
-    inputs: [],
+    inputs: [{ name: "amount", type: "uint256" }],
     name: "mint",
     outputs: [],
     stateMutability: "nonpayable",
@@ -36,10 +37,10 @@ const client = createWalletClient({
 setTimeout(async () => {
   const { request } = await publicClient.simulateContract({
     account,
-    address: "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
+    address: "0x942598A9dF483a076fAc0951a55eb5B3AF60B56B",
     abi: wagmiAbi,
     functionName: "mint",
-    args: ['1000000000000000000000n']
+    args: [parseEther("1000")],
   });
   console.log(request.nonce, request.gasPrice);
   await client.writeContract(request);
