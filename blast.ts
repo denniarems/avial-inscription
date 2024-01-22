@@ -33,9 +33,10 @@ const client = createWalletClient({
   chain: blastSepolia,
   transport: http(),
 });
-
+let nounce = 14
 const run = async () => {
         const { request } = await publicClient.simulateContract({
+            nonce: nounce++,
             account,
             address: "0x942598A9dF483a076fAc0951a55eb5B3AF60B56B",
             abi: wagmiAbi,
