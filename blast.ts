@@ -34,14 +34,18 @@ const client = createWalletClient({
   transport: http(),
 });
 
-setTimeout(async () => {
-  const { request } = await publicClient.simulateContract({
-    account,
-    address: "0x942598A9dF483a076fAc0951a55eb5B3AF60B56B",
-    abi: wagmiAbi,
-    functionName: "mint",
-    args: [parseEther("1000")],
-  });
-  console.log(request.nonce, request.gasPrice);
-  await client.writeContract(request);
-}, 5000);
+const run = async () => {
+        const { request } = await publicClient.simulateContract({
+            account,
+            address: "0x942598A9dF483a076fAc0951a55eb5B3AF60B56B",
+            abi: wagmiAbi,
+            functionName: "mint",
+            args: [parseEther("1000")],
+        });
+        await client.writeContract(request);
+        console.log("done");
+        setTimeout(run, 1000);
+};
+
+
+await run()
